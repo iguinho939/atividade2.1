@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f9;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 650px;
+      background-color: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* BOTÕES DAS OPERAÇÕES */
+
+    .operacoes {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn-operacao {
+      width: 55px;
+      height: 50px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #ffffff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-operacao:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    .btn-operacao.ativo {
+      background-color: #003f88;
+    }
+
+    /* ÁREA DA CALCULADORA */
+
+    .calculadora {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .calculadora.mostrar {
+      display: flex;
+    }
+
+    input[type="number"] {
+      width: 110px;
+      padding: 10px;
+      font-size: 18px;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    input[type="number"]:focus {
+      border-color: #007bff;
+    }
+
+    .simbolo {
+      font-size: 32px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .btn-igual {
+      font-size: 28px;
+      font-weight: bold;
+      color: #ffffff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 16px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-igual:hover {
+      background-color: #0056b3;
+    }
+
+    .resultado {
+      background-color: #f0f0f0;
+    }
+
+    /* MENSAGEM INICIAL */
+
+    .mensagem {
+      text-align: center;
+      color: #777;
+      margin: 0;
+    }
+
+    @media (max-width: 520px) {
+      .container {
+        padding: 16px;
+      }
+
+      input[type="number"] {
+        width: 90px;
+      }
+
+      .calculadora {
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="container" aria-label="Calculadora">
+
+    <!-- BOTÕES DAS OPERAÇÕES -->
+
+    <div class="operacoes">
+
+      <button
+        class="btn-operacao"
+        data-operacao="porcentagem"
+        aria-label="Porcentagem">
+        %
+      </button>
+
+      <button
+        class="btn-operacao"
+        data-operacao="adicao"
+        aria-label="Adição">
+        +
+      </button>
+
+      <button
+        class="btn-operacao"
+        data-operacao="subtracao"
+        aria-label="Subtração">
+        −
+      </button>
+
+      <button
+        class="btn-operacao"
+        data-operacao="multiplicacao"
+        aria-label="Multiplicação">
+        ×
+      </button>
+
+      <button
+        class="btn-operacao"
+        data-operacao="divisao"
+        aria-label="Divisão">
+        ÷
+      </button>
+
+    </div>
+
+
+    <!-- MENSAGEM INICIAL -->
+
+    <p class="mensagem" id="mensagem">
+      Selecione uma operação acima.
+    </p>
+
+
+    <!-- CALCULADORA -->
+
+    <div class="calculadora" id="calculadora">
+
+      <input
+        type="number"
+        id="valor1"
+        aria-label="Primeiro valor"
+      >
+
+      <span
+        class="simbolo"
+        id="simbolo">
+      </span>
+
+      <input
+        type="number"
+        id="valor2"
+        aria-label="Segundo valor"
+      >
+
+      <button
+        type="button"
+        class="btn-igual"
+        id="calcular">
+        =
+      </button>
+
+      <input
+        type="number"
+        id="resultado"
+        class="resultado"
+        aria-label="Resultado"
+        readonly
+      >
+
+    </div>
+
+  </main>
+
+
+  <script>
+
+    const botoesOperacao =
+      document.querySelectorAll(".btn-operacao");
+
+    const calculadora =
+      document.getElementById("calculadora");
+
+    const mensagem =
+      document.getElementById("mensagem");
+
+    const valor1 =
+      document.getElementById("valor1");
+
+    const valor2 =
+      document.getElementById("valor2");
+
+    const resultado =
+      document.getElementById("resultado");
+
+    const simbolo =
+      document.getElementById("simbolo");
+
+    const calcular =
+      document.getElementById("calcular");
+
+
+    let operacaoAtual = "";
+
+
+    /*
+      SELECIONAR OPERAÇÃO
+    */
+
+    botoesOperacao.forEach((botao) => {
+
+      botao.addEventListener("click", () => {
+
+        operacaoAtual =
+          botao.dataset.operacao;
+
+        botoesOperacao.forEach((b) => {
+          b.classList.remove("ativo");
+        });
+
+        botao.classList.add("ativo");
+
+        calculadora.classList.add("mostrar");
+
+        mensagem.style.display = "none";
+
+        resultado.value = "";
+
+        valor1.value = "";
+        valor2.value = "";
+
+
+        /*
+          DEFINIR O SÍMBOLO
+        */
+
+        if (operacaoAtual === "porcentagem") {
+          simbolo.textContent = "%";
+        }
+
+        if (operacaoAtual === "adicao") {
+          simbolo.textContent = "+";
+        }
+
+        if (operacaoAtual === "subtracao") {
+          simbolo.textContent = "−";
+        }
+
+        if (operacaoAtual === "multiplicacao") {
+          simbolo.textContent = "×";
+        }
+
+        if (operacaoAtual === "divisao") {
+          simbolo.textContent = "÷";
+        }
+
+        valor1.focus();
+
+      });
+
+    });
+
+
+    /*
+      CALCULAR
+    */
+
+    function realizarCalculo() {
+
+      const numero1 =
+        Number(valor1.value);
+
+      const numero2 =
+        Number(valor2.value);
+
+
+      if (
+        valor1.value === "" ||
+        valor2.value === ""
+      ) {
+        resultado.value = "";
+        return;
+      }
+
+
+      let resposta;
+
+
+      /*
+        PORCENTAGEM
+      */
+
+      if (operacaoAtual === "porcentagem") {
+
+        resposta =
+          (numero1 / 100) * numero2;
+
+      }
+
+
+      /*
+        ADIÇÃO
+      */
+
+      else if (operacaoAtual === "adicao") {
+
+        resposta =
+          numero1 + numero2;
+
+      }
+
+
+      /*
+        SUBTRAÇÃO
+      */
+
+      else if (operacaoAtual === "subtracao") {
+
+        resposta =
+          numero1 - numero2;
+
+      }
+
+
+      /*
+        MULTIPLICAÇÃO
+      */
+
+      else if (operacaoAtual === "multiplicacao") {
+
+        resposta =
+          numero1 * numero2;
+
+      }
+
+
+      /*
+        DIVISÃO
+      */
+
+      else if (operacaoAtual === "divisao") {
+
+        if (numero2 === 0) {
+          resultado.value = "Erro";
+          return;
+        }
+
+        resposta =
+          numero1 / numero2;
+
+      }
+
+
+      resultado.value = resposta;
+
+    }
+
+
+    /*
+      BOTÃO =
+    */
+
+    calcular.addEventListener(
+      "click",
+      realizarCalculo
+    );
+
+
+    /*
+      ENTER NOS CAMPOS
+    */
+
+    valor1.addEventListener(
+      "keydown",
+      (event) => {
+
+        if (event.key === "Enter") {
+          realizarCalculo();
+        }
+
+      }
+    );
+
+
+    valor2.addEventListener(
+      "keydown",
+      (event) => {
+
+        if (event.key === "Enter") {
+          realizarCalculo();
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>
